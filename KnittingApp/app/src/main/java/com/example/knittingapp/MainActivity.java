@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.File;
+import java.io.FileWriter;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,6 +30,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         knitprefs = getSharedPreferences("knitprefs",
                 MODE_PRIVATE);
+
+        File file = new File(MainActivity.this.getFilesDir(), "text");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+
+
         counter = findViewById(R.id.textView);
         projectName = findViewById(R.id.textView3);
         Button editName = findViewById(R.id.button3);
@@ -109,6 +118,18 @@ public class MainActivity extends AppCompatActivity {
         ed.putInt("rowCounter", rowCounter);
         ed.putString("projectName", projectN);
         ed.commit();
+        File file = new File(MainActivity.this.getFilesDir(), "text");
+        try {
+            File gpxfile = new File(file, "sample");
+            FileWriter writer = new FileWriter(gpxfile);
+            writer.append("\"");
+            writer.append(projectN);
+            writer.append("\",\"");
+            writer.append(Integer.toString(rowCounter));
+            writer.append("\"\n");
+            writer.flush();
+            writer.close();
+        } catch (Exception e) { }
     }
 
 
