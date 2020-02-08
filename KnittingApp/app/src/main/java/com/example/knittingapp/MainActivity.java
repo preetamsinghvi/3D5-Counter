@@ -15,10 +15,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-
-    int rowCounter = -1;
+    ArrayList<Project> projects;
+    int rowCounter = 0;
     String projectN;
     SharedPreferences knitprefs;
     TextView counter;
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
             file.mkdir();
         }
 
+        projects = new ArrayList<Project>();
+
 
         counter = findViewById(R.id.textView);
         projectName = findViewById(R.id.textView3);
@@ -46,9 +49,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        if(rowCounter<0){
-        rowCounter=0;}
 
         Button plusB = findViewById(R.id.button);
         Button minusB = findViewById(R.id.button2);
@@ -74,6 +74,33 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    //TODO: Check for invalid input
+    public void addNewProject(String pName, String pDesc){
+        Project nProject = new Project(pName, pDesc);
+        projects.add(nProject);
+    }
+
+    public void writeProjectsInFile(){
+        File file = new File(MainActivity.this.getFilesDir(), "text");
+        try {
+            File gpxfile = new File(file, "projects");
+            FileWriter writer = new FileWriter(gpxfile);
+            for(Project p : projects){
+                writer.append("\"");
+                writer.append(p.getName());
+                writer.append("\",\"");
+                writer.append(p.getDescription());
+                writer.append("\",\"");
+                writer.append(Integer.toString(p.getCounter()));
+                writer.append("\"\n");}
+            writer.flush();
+            writer.close();
+        } catch (Exception e) { }
+    }
+
+    //TODO
+    //public void readProjectsFromFile(){}
 
     public void enterProjectName() {
         projectN="";
@@ -118,18 +145,7 @@ public class MainActivity extends AppCompatActivity {
         ed.putInt("rowCounter", rowCounter);
         ed.putString("projectName", projectN);
         ed.commit();
-        File file = new File(MainActivity.this.getFilesDir(), "text");
-        try {
-            File gpxfile = new File(file, "sample");
-            FileWriter writer = new FileWriter(gpxfile);
-            writer.append("\"");
-            writer.append(projectN);
-            writer.append("\",\"");
-            writer.append(Integer.toString(rowCounter));
-            writer.append("\"\n");
-            writer.flush();
-            writer.close();
-        } catch (Exception e) { }
+        writeProjectsInFile();
     }
 
 
