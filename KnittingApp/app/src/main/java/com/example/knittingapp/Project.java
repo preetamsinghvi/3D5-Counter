@@ -9,9 +9,11 @@ public class Project {
 
         //TODO: Check Input and throw Exceptions
         Project(String pName, String pDescription) {
-            name = pName;
-            description = pDescription;
-            counter = 0;
+            try {
+                name = pName;
+                description = pDescription;
+                counter = 0;
+            } catch(Exception e) { }
         }
 
         String getName(){
@@ -28,16 +30,22 @@ public class Project {
 
         //TODO: Check Input
         void setName(String pName){
-            name = pName;
-        }
+            try {
+                name = pName;
+            } catch(Exception e) { }
 
         //TODO: Check Input
         void setDescription(String pDesc){
-            description = pDesc;
+            try {
+                description = pDesc;
+            } catch(Exception e) { }
         }
 
         //TODO: Check Input
         void setCounter(int pCounter){
-            counter = pCounter;
+            try {
+                counter = pCounter;
+            } catch(Exception e) { }
+
         }
 }
