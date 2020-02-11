@@ -75,12 +75,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //TODO: Check for invalid input
+    //TODO: Exception Handling
     public void addNewProject(String pName, String pDesc){
         Project nProject = new Project(pName, pDesc);
         projects.add(nProject);
     }
 
+    public void deleteProject(Project dProj){
+        projects.remove(dProj);
+    }
+
+    //Writes Data for projects into projects.txt file in folder text in csv format
+    //Creates File if it not already exists
     public void writeProjectsInFile(){
         File file = new File(MainActivity.this.getFilesDir(), "text");
         try {
@@ -99,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) { }
     }
 
-    //TODO
+    //TODO:
+    //Reads data for all projects from projects.txt into the projects array when called
     //public void readProjectsFromFile(){}
 
     public void enterProjectName() {
