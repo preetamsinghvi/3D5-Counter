@@ -7,13 +7,13 @@ public class Project {
         private String description;
         //private double progress; //*100 is progress % maybe make into int?
 
-        //TODO: Check Input and throw Exceptions
         Project(String pName, String pDescription) {
-            try {
+            if(pName == null || pName.isEmpty()|| description == null || description.isEmpty()|| counter<0){
+                throw new IllegalArgumentException("Input not acceptable");
+            }
                 name = pName;
                 description = pDescription;
                 counter = 0;
-            } catch(Exception e) { }
         }
 
         String getName(){
@@ -28,24 +28,28 @@ public class Project {
             return counter;
         }
 
-        //TODO: Check Input
-        void setName(String pName){
-            try {
-                name = pName;
-            } catch(Exception e) { }
+        void setName(String pName) {
+            if(pName == null || pName.isEmpty()){
+                throw new IllegalArgumentException("NO!");
+            }
+            name = pName;
+        }
 
-        //TODO: Check Input
         void setDescription(String pDesc){
-            try {
+            if(pDesc == null ||pDesc.isEmpty()){
+                throw new IllegalArgumentException("NO");
+            }
                 description = pDesc;
-            } catch(Exception e) { }
         }
 
-        //TODO: Check Input
         void setCounter(int pCounter){
-            try {
+                if (pCounter < 0) {
+                    throw new IllegalArgumentException("Counter can't be lower than 0");
+                }
                 counter = pCounter;
-            } catch(Exception e) { }
+            }
 
+
+            //TODO: Override CompareTo or Equals method
         }
-}
+
