@@ -13,8 +13,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -105,9 +110,27 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) { }
     }
 
-    //TODO:
+    //TODO: This is a base version, could use some more work (e.g. check for Numberformatexception
+    //when parsing int, also still needs testing
     //Reads data for all projects from projects.txt into the projects array when called
-    //public void readProjectsFromFile(){}
+    public void readProjectsFromFile() throws IOException{
+        String filePath = "/data/data/com.example.knittingapp/files/text/projects";
+        File tempFile = new File(filePath);
+        if (! tempFile.exists () || !tempFile.canRead() ||!tempFile.canExecute ())
+            { throw new IOException("Nein");}
+        FileReader reader = new FileReader(filePath);
+        BufferedReader inBuffer = new BufferedReader(reader);
+        projects = new ArrayList<Project>();
+        String line = inBuffer.readLine();
+        while(line != null){
+            String[] filter = line.split ("(,)");
+            if(filter.length == 3){
+               Project pTemp = new Project(filter[0], filter[1], Integer.parseInt(filter[2]));
+               projects.add(pTemp);
+            }
+
+        }
+     }
 
     public void enterProjectName() {
         projectN="";

@@ -16,6 +16,15 @@ public class Project {
                 counter = 0;
         }
 
+    Project(String pName, String pDescription, int pRows) {
+        if(pName == null || pName.isEmpty()|| description == null || description.isEmpty()|| counter<0){
+            throw new IllegalArgumentException("Input not acceptable");
+        }
+        name = pName;
+        description = pDescription;
+        counter = pRows;
+    }
+
         String getName(){
             return name;
         }
