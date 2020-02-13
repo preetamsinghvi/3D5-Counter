@@ -14,9 +14,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 
-    int rowCounter = -1;
+public class MainActivity extends AppCompatActivity {
+    ArrayList<Project> projects;
+    int rowCounter = 0;
     String projectN;
     SharedPreferences knitprefs;
     TextView counter;
@@ -28,6 +36,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         knitprefs = getSharedPreferences("knitprefs",
                 MODE_PRIVATE);
+
+        File file = new File(MainActivity.this.getFilesDir(), "text");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+
+        projects = new ArrayList<Project>();
+
+
         counter = findViewById(R.id.textView);
         projectName = findViewById(R.id.textView3);
         Button editName = findViewById(R.id.button3);
@@ -37,9 +54,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        if(rowCounter<0){
-        rowCounter=0;}
 
         Button plusB = findViewById(R.id.button);
         Button minusB = findViewById(R.id.button2);
@@ -65,6 +79,58 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    //TODO: Exception Handling
+    public void addNewProject(String pName, String pDesc){
+        Project nProject = new Project(pName, pDesc);
+        projects.add(nProject);
+    }
+
+    public void deleteProject(Project dProj){
+        projects.remove(dProj);
+    }
+
+    //Writes Data for projects into projects.txt file in folder text in csv format
+    //Creates File if it not already exists
+    public void writeProjectsInFile(){
+        File file = new File(MainActivity.this.getFilesDir(), "text");
+        try {
+            File gpxfile = new File(file, "projects");
+            FileWriter writer = new FileWriter(gpxfile);
+            for(Project p : projects){
+                writer.append("\"");
+                writer.append(p.getName());
+                writer.append("\",\"");
+                writer.append(p.getDescription());
+                writer.append("\",\"");
+                writer.append(Integer.toString(p.getCounter()));
+                writer.append("\"\n");}
+            writer.flush();
+            writer.close();
+        } catch (Exception e) { }
+    }
+
+    //TODO: This is a base version, could use some more work (e.g. check for Numberformatexception
+    //when parsing int, also still needs testing
+    //Reads data for all projects from projects.txt into the projects array when called
+    public void readProjectsFromFile() throws IOException{
+        String filePath = "/data/data/com.example.knittingapp/files/text/projects";
+        File tempFile = new File(filePath);
+        if (! tempFile.exists () || !tempFile.canRead() ||!tempFile.canExecute ())
+            { throw new IOException("Nein");}
+        FileReader reader = new FileReader(filePath);
+        BufferedReader inBuffer = new BufferedReader(reader);
+        projects = new ArrayList<Project>();
+        String line = inBuffer.readLine();
+        while(line != null){
+            String[] filter = line.split ("(,)");
+            if(filter.length == 3){
+               Project pTemp = new Project(filter[0], filter[1], Integer.parseInt(filter[2]));
+               projects.add(pTemp);
+            }
+
+        }
+     }
 
     public void enterProjectName() {
         projectN="";
@@ -109,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         ed.putInt("rowCounter", rowCounter);
         ed.putString("projectName", projectN);
         ed.commit();
+        writeProjectsInFile();
     }
 
 
