@@ -4,13 +4,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +23,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,108 +33,58 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences knitprefs;
     TextView counter;
     TextView projectName;
+    boolean list = true;
+    int currentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_list);
         knitprefs = getSharedPreferences("knitprefs",
                 MODE_PRIVATE);
 
-        File file = new File(MainActivity.this.getFilesDir(), "text");
-        if (!file.exists()) {
-            file.mkdir();
+
+        File file = new File(MainActivity.this.getFilesDir(), "projects");
+        Log.e("myTag", file.getAbsolutePath());
+            if (!file.exists()) {
+                try {
+                    Log.e("File Fuckery", "File does not exist");
+                    file.createNewFile();
+                } catch (Exception e) {Log.e("File Fuckery", "File does not exist");
+                }
+            } else {Log.e("File Fuckery", "File exists");}
+
+            projects = new ArrayList<Project>();
+            try {
+                FileReader read = new FileReader(file);
+                BufferedReader inBuffer = new BufferedReader(read);
+                String line = inBuffer.readLine();
+                while(line != null){
+                    Log.e("File Fuckery", line);
+                    String[] filter = line.split("(;)");
+                    Log.e("File Fuckery", filter[1]);
+                    if(filter.length == 3){
+                        projects.add(new Project(filter[0], filter[1], Integer.parseInt(filter[2])));
+                    }
+                    line = inBuffer.readLine();
+                }
+            } catch (Exception e) { Log.e("File Fuckery", e.getMessage());}
+
+            if(projects.size()!=0){
+               projectN=projects.get(0).getName();
+            } else projectN = "NAME";
+
+        Log.e("File Fuckery", Integer.toString(projects.size()));
+         if(list) {
+             refreshProjectList();
+         }
+         else {
+             setContentView(R.layout.activity_main);
+             refreshProjectPage();
+
+         }
         }
 
-        projects = new ArrayList<Project>();
-
-
-        counter = findViewById(R.id.textView);
-        projectName = findViewById(R.id.textView3);
-        Button editName = findViewById(R.id.button3);
-        editName.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                enterProjectName();
-            }
-        });
-
-
-        Button plusB = findViewById(R.id.button);
-        Button minusB = findViewById(R.id.button2);
-
-
-        counter.setText(Integer.toString(rowCounter));
-
-        plusB.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                rowCounter++;
-                counter.setText(Integer.toString(rowCounter));
-            }
-        });
-
-        minusB.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if(rowCounter>0){rowCounter--;
-                counter.setText(Integer.toString(rowCounter));}
-                else {
-                    Toast.makeText(getApplicationContext(), "Can't reduce the counter below 0", 1).show();}
-            }
-        });
-
-
-    }
-
-    //TODO: Exception Handling
-    public void addNewProject(String pName, String pDesc){
-        Project nProject = new Project(pName, pDesc);
-        projects.add(nProject);
-    }
-
-    public void deleteProject(Project dProj){
-        projects.remove(dProj);
-    }
-
-    //Writes Data for projects into projects.txt file in folder text in csv format
-    //Creates File if it not already exists
-    public void writeProjectsInFile(){
-        File file = new File(MainActivity.this.getFilesDir(), "text");
-        try {
-            File gpxfile = new File(file, "projects");
-            FileWriter writer = new FileWriter(gpxfile);
-            for(Project p : projects){
-                writer.append("\"");
-                writer.append(p.getName());
-                writer.append("\",\"");
-                writer.append(p.getDescription());
-                writer.append("\",\"");
-                writer.append(Integer.toString(p.getCounter()));
-                writer.append("\"\n");}
-            writer.flush();
-            writer.close();
-        } catch (Exception e) { }
-    }
-
-    //TODO: This is a base version, could use some more work (e.g. check for Numberformatexception
-    //when parsing int, also still needs testing
-    //Reads data for all projects from projects.txt into the projects array when called
-    public void readProjectsFromFile() throws IOException{
-        String filePath = "/data/data/com.example.knittingapp/files/text/projects";
-        File tempFile = new File(filePath);
-        if (! tempFile.exists () || !tempFile.canRead() ||!tempFile.canExecute ())
-            { throw new IOException("Nein");}
-        FileReader reader = new FileReader(filePath);
-        BufferedReader inBuffer = new BufferedReader(reader);
-        projects = new ArrayList<Project>();
-        String line = inBuffer.readLine();
-        while(line != null){
-            String[] filter = line.split ("(,)");
-            if(filter.length == 3){
-               Project pTemp = new Project(filter[0], filter[1], Integer.parseInt(filter[2]));
-               projects.add(pTemp);
-            }
-
-        }
-     }
 
     public void enterProjectName() {
         projectN="";
@@ -156,15 +110,116 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    void refreshProjectList(){
+        Button addNew = findViewById(R.id.button6);
+        addNew.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(getBaseContext(), AddProject.class);
+                startActivity(myIntent);
+            }
+        });
+        LinearLayout lay = findViewById(R.id.list);
+        if(projects.size()==0){
+            TextView tv=new TextView(getApplicationContext());
+            tv.setText("No projects yet :(");
+            lay.addView(tv);
+        } else {
+            for(int r=0; r<projects.size(); r++){
+                TextView tv=new TextView(getApplicationContext());
+                tv.setText(projects.get(r).getName());
+                final int current = r;
+                tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        currentId = current;
+                        Log.e("File Fuckery", Integer.toString(currentId));
+                        list = false;
+                        rowCounter = projects.get(currentId).getCounter();
+                        projectN =  projects.get(currentId).getName();
+
+                        setContentView(R.layout.activity_main);
+                        refreshProjectPage();
+
+                    }
+                });
+                lay.addView(tv);
+            }
+        }
+
+    }
+
+    void refreshProjectPage(){
+        rowCounter = projects.get(currentId).getCounter();
+        projectN =  projects.get(currentId).getName();
+        counter = findViewById(R.id.textView);
+        projectName = findViewById(R.id.textView3);
+
+        Button editName = findViewById(R.id.button3);
+        editName.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                enterProjectName();
+            }
+        });
+
+        Button backB = findViewById(R.id.button5);
+        backB.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                list = true;
+                setContentView(R.layout.activity_main_list);
+                refreshProjectList();
+            }
+        });
+
+
+
+
+
+        Button plusB = findViewById(R.id.button);
+        Button minusB = findViewById(R.id.button2);
+
+
+        counter.setText(Integer.toString(rowCounter));
+        projectName.setText(projectN);
+
+        plusB.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                rowCounter++;
+                counter.setText(Integer.toString(rowCounter));
+            }
+
+        });
+
+        minusB.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (rowCounter > 0) {
+                    rowCounter--;
+                    counter.setText(Integer.toString(rowCounter));
+                } else {
+                    Toast.makeText(getApplicationContext(), "Can't reduce the counter below 0", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+    }
+
+    void saveChanges(){
+        projects.get(currentId).setCounter(rowCounter);
+        projects.get(currentId).setName(projectN);
+
+    }
+
     @Override
     protected void onResume()
     {
         super.onResume();
-
+        if(!list){
         projectN = knitprefs.getString("projectName", "");
         projectName.setText(projectN);
         rowCounter = knitprefs.getInt("rowCounter", 0);
-        counter.setText(Integer.toString(rowCounter));
+        counter.setText(Integer.toString(rowCounter));}
 
     }
 
@@ -175,7 +230,6 @@ public class MainActivity extends AppCompatActivity {
         ed.putInt("rowCounter", rowCounter);
         ed.putString("projectName", projectN);
         ed.commit();
-        writeProjectsInFile();
     }
 
 
