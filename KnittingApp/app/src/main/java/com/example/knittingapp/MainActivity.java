@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 projectN = input.getText().toString();
                 projectName.setText(projectN);
+                saveChanges();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -166,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
         Button backB = findViewById(R.id.button5);
         backB.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                saveChanges();
                 list = true;
                 setContentView(R.layout.activity_main_list);
                 refreshProjectList();
@@ -208,7 +210,16 @@ public class MainActivity extends AppCompatActivity {
     void saveChanges(){
         projects.get(currentId).setCounter(rowCounter);
         projects.get(currentId).setName(projectN);
-
+        try {
+            File file = new File(MainActivity.this.getFilesDir(), "projects");
+            FileWriter out = new FileWriter(file, false);
+            for (Project p : projects) {
+                String add = p.getName() + ";" + p.getDescription() + ";" + Integer.toString(p.getCounter()) + ";\n";
+                out.write(add);
+                out.close();
+            }
+        }
+        catch (Exception e) {}
     }
 
     @Override
@@ -225,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onPause() {
         super.onPause();
-
+        saveChanges();
         SharedPreferences.Editor ed = knitprefs.edit();
         ed.putInt("rowCounter", rowCounter);
         ed.putString("projectName", projectN);
