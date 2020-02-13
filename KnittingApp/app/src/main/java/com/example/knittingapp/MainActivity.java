@@ -250,11 +250,14 @@ public class MainActivity extends AppCompatActivity {
         try {
             File file = new File(MainActivity.this.getFilesDir(), "projects");
             FileWriter out = new FileWriter(file, false);
+            int coun=0;
             for (Project p : projects) {
+                coun++;
                 String add = p.getName() + ";" + p.getDescription() + ";" + Integer.toString(p.getCounter()) + ";\n";
                 out.write(add);
-                out.close();
             }
+            out.close();
+            Log.e("Saved Items:", Integer.toString(coun));
         }
         catch (Exception e) {}
     }
