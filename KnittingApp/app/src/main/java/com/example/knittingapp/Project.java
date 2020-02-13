@@ -1,6 +1,10 @@
 package com.example.knittingapp;
 
-public class Project {
+
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class Project implements Serializable {
 
         private String name;
         private int counter;
@@ -8,8 +12,11 @@ public class Project {
         //private double progress; //*100 is progress % maybe make into int?
 
         Project(String pName, String pDescription) {
-            if(pName == null || pName.isEmpty()|| description == null || description.isEmpty()|| counter<0){
+            if(pName == null || pDescription == null){
                 throw new IllegalArgumentException("Input not acceptable");
+            }
+            if(pDescription.isEmpty() || pName.isEmpty()){
+                throw new IllegalArgumentException("Input String is empty");
             }
                 name = pName;
                 description = pDescription;
@@ -17,7 +24,7 @@ public class Project {
         }
 
     Project(String pName, String pDescription, int pRows) {
-        if(pName == null || pName.isEmpty()|| description == null || description.isEmpty()|| counter<0){
+        if(pName == null || pName.isEmpty()|| pDescription == null || pDescription.isEmpty()|| counter<0){
             throw new IllegalArgumentException("Input not acceptable");
         }
         name = pName;
@@ -39,14 +46,14 @@ public class Project {
 
         void setName(String pName) {
             if(pName == null || pName.isEmpty()){
-                throw new IllegalArgumentException("NO!");
+                throw new IllegalArgumentException("NO setName!");
             }
             name = pName;
         }
 
         void setDescription(String pDesc){
-            if(pDesc == null ||pDesc.isEmpty()){
-                throw new IllegalArgumentException("NO");
+            if(pDesc == null || pDesc.isEmpty()){
+                throw new IllegalArgumentException("NO setDesc");
             }
                 description = pDesc;
         }
