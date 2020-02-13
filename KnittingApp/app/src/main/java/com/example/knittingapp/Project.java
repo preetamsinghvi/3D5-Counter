@@ -46,14 +46,14 @@ public class Project implements Serializable {
 
         void setName(String pName) {
             if(pName == null || pName.isEmpty()){
-                throw new IllegalArgumentException("NO!");
+                throw new IllegalArgumentException("NO setName!");
             }
             name = pName;
         }
 
         void setDescription(String pDesc){
-            if(pDesc == null ||pDesc.isEmpty()){
-                throw new IllegalArgumentException("NO");
+            if(pDesc == null || pDesc.isEmpty()){
+                throw new IllegalArgumentException("NO setDesc");
             }
                 description = pDesc;
         }

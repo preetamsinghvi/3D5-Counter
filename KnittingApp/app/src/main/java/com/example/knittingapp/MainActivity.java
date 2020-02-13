@@ -30,9 +30,11 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Project> projects;
     int rowCounter = 0;
     String projectN;
+    String projectD;
     SharedPreferences knitprefs;
     TextView counter;
     TextView projectName;
+    TextView description;
     boolean list = true;
     int currentId;
 
@@ -72,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
             if(projects.size()!=0){
                projectN=projects.get(0).getName();
+
             } else projectN = "NAME";
 
         Log.e("File Fuckery", Integer.toString(projects.size()));
@@ -98,6 +101,31 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 projectN = input.getText().toString();
                 projectName.setText(projectN);
+                projects.get(currentId).setName(projectN);
+                saveChanges();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+    public void enterProjectDesc() {
+        projectD="";
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Input Project Description");
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                projectD = input.getText().toString();
+                description.setText(projectD);
+                projects.get(currentId).setDescription(projectD);
                 saveChanges();
             }
         });
@@ -139,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
                         list = false;
                         rowCounter = projects.get(currentId).getCounter();
                         projectN =  projects.get(currentId).getName();
+                        projectD = projects.get(currentId).getDescription();
 
                         setContentView(R.layout.activity_main);
                         refreshProjectPage();
@@ -154,13 +183,22 @@ public class MainActivity extends AppCompatActivity {
     void refreshProjectPage(){
         rowCounter = projects.get(currentId).getCounter();
         projectN =  projects.get(currentId).getName();
+        projectD = projects.get(currentId).getDescription();
         counter = findViewById(R.id.textView);
         projectName = findViewById(R.id.textView3);
+        description = findViewById(R.id.descr);
 
         Button editName = findViewById(R.id.button3);
         editName.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 enterProjectName();
+            }
+        });
+
+        Button editDesc = findViewById(R.id.button7);
+        editDesc.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                enterProjectDesc();
             }
         });
 
@@ -174,21 +212,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
-
-
         Button plusB = findViewById(R.id.button);
         Button minusB = findViewById(R.id.button2);
 
-
         counter.setText(Integer.toString(rowCounter));
         projectName.setText(projectN);
+        description.setText(projectD);
 
         plusB.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 rowCounter++;
+                projects.get(currentId).setCounter(rowCounter);
                 counter.setText(Integer.toString(rowCounter));
+                saveChanges();
             }
 
         });
@@ -197,7 +233,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (rowCounter > 0) {
                     rowCounter--;
+                    projects.get(currentId).setCounter(rowCounter);
                     counter.setText(Integer.toString(rowCounter));
+                    saveChanges();
                 } else {
                     Toast.makeText(getApplicationContext(), "Can't reduce the counter below 0", Toast.LENGTH_SHORT).show();
                 }
@@ -208,8 +246,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void saveChanges(){
-        projects.get(currentId).setCounter(rowCounter);
-        projects.get(currentId).setName(projectN);
+        Log.e("Save Fuckery", "Got called");
         try {
             File file = new File(MainActivity.this.getFilesDir(), "projects");
             FileWriter out = new FileWriter(file, false);
@@ -222,26 +259,6 @@ public class MainActivity extends AppCompatActivity {
         catch (Exception e) {}
     }
 
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-        if(!list){
-        projectN = knitprefs.getString("projectName", "");
-        projectName.setText(projectN);
-        rowCounter = knitprefs.getInt("rowCounter", 0);
-        counter.setText(Integer.toString(rowCounter));}
-
-    }
-
-    protected void onPause() {
-        super.onPause();
-        saveChanges();
-        SharedPreferences.Editor ed = knitprefs.edit();
-        ed.putInt("rowCounter", rowCounter);
-        ed.putString("projectName", projectN);
-        ed.commit();
-    }
 
 
 }
