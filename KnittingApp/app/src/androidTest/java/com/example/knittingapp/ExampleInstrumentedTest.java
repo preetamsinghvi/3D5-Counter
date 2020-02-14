@@ -1,4 +1,4 @@
-package com.example.counter;
+package com.example.knittingapp;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.example.counter", appContext.getPackageName());
+        assertEquals("com.example.knittingapp", appContext.getPackageName());
     }
 }
