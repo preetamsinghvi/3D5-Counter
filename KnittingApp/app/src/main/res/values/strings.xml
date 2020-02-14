@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">KnittingApp</string>
+    <string name="app_name">Counter</string>
+    <string name="new_counter">New Counter</string>
+    <string name="enter_counter_name">Enter Counter Name</string>
+    <string name="enter_counter_description">Enter Counter Description</string>
+    <string name="add_counter">Add Counter</string>
+    <string name="x">X</string>
 </resources>

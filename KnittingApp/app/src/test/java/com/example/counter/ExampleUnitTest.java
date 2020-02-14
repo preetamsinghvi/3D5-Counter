@@ -1,4 +1,4 @@
-package com.example.knittingapp;
+package com.example.counter;
 
 import org.junit.Test;
 
